@@ -4,6 +4,8 @@ import Home from './Home'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
 import { Analytics } from '@vercel/analytics/react'
 
+// ...existing code...
+
 let supportedWallets: SupportedWallet[]
 if (import.meta.env.VITE_ALGOD_NETWORK === 'localnet') {
   const kmdConfig = getKmdConfigFromViteEnvironment()
