@@ -1,11 +1,11 @@
 // Shared Express app (no .listen here)
-import express from 'express'
-import cors from 'cors'
-import multer from 'multer'
 import pinataSDK from '@pinata/sdk'
+import cors from 'cors'
 import dotenv from 'dotenv'
-import { Readable } from 'stream'
+import express from 'express'
+import multer from 'multer'
 import path from 'path'
+import { Readable } from 'stream'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -46,6 +46,12 @@ const pinata = process.env.PINATA_JWT
 
 // Optional: test credentials at cold start
 ;(async () => {
+  const skip = process.env.SKIP_PINATA_TEST === 'true' || !process.env.PINATA_API_KEY || process.env.PINATA_API_KEY.includes('YOUR_PINATA')
+  if (skip) {
+    console.log('Pinata auth test skipped (set SKIP_PINATA_TEST=false and provide real keys to enable).')
+    return
+  }
+
   try {
     const auth = await pinata.testAuthentication?.()
     console.log('Pinata auth OK:', auth || 'ok')

@@ -79,7 +79,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => setOpenPaymentModal(true)}
+                onClick={() => (activeAddress ? setOpenPaymentModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
               >
                 <div className="p-3 rounded-lg bg-indigo-100 text-indigo-700">
                   <AiOutlineSend className={iconStyle} />
@@ -92,7 +92,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => setOpenMintModal(true)}
+                onClick={() => (activeAddress ? setOpenMintModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
               >
                 <div className="p-3 rounded-lg bg-pink-100 text-pink-700">
                   <AiOutlineStar className={iconStyle} />
@@ -105,7 +105,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => setOpenTokenModal(true)}
+                onClick={() => (activeAddress ? setOpenTokenModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
               >
                 <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
                   <BsArrowUpRightCircle className={iconStyle} />
@@ -118,7 +118,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => setOpenAppCallsModal(true)}
+                onClick={() => (activeAddress ? setOpenAppCallsModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
               >
                 <div className="p-3 rounded-lg bg-blue-100 text-blue-700">
                   <AiOutlineDeploymentUnit className={iconStyle} />
@@ -132,7 +132,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               {/* Service links: Register vehicle, Transfer Title, Help */}
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => onNavigate ? onNavigate('register') : null}
+                onClick={() => (onNavigate ? onNavigate('register') : null)}
               >
                 <div className="p-3 rounded-lg bg-yellow-100 text-yellow-700">
                   <AiOutlineStar className={iconStyle} />
@@ -145,7 +145,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => onNavigate ? onNavigate('transfer') : null}
+                onClick={() => (onNavigate ? onNavigate('transfer') : null)}
               >
                 <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
                   <BsArrowUpRightCircle className={iconStyle} />
@@ -158,7 +158,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => onNavigate ? onNavigate('help') : null}
+                onClick={() => (onNavigate ? onNavigate('help') : null)}
               >
                 <div className="p-3 rounded-lg bg-slate-100 text-slate-700">
                   <AiOutlineSend className={iconStyle} />
