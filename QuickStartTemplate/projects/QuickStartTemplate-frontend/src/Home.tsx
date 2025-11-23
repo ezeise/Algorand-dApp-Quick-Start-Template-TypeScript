@@ -12,12 +12,14 @@ import NFTmint from './components/NFTmint'
 import Tokenmint from './components/Tokenmint'
 import Transact from './components/Transact'
 
-interface HomeProps {}
+interface HomeProps {
+  onNavigate?: (view: 'services' | 'register' | 'transfer' | 'help' | 'settings') => void
+}
 
 const cardBase = 'rounded-xl shadow-md hover:shadow-lg transition border border-gray-200 bg-white'
 const iconStyle = 'text-3xl text-gray-700'
 
-const Home: React.FC<HomeProps> = () => {
+const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const [openPaymentModal, setOpenPaymentModal] = useState<boolean>(false)
   const [openMintModal, setOpenMintModal] = useState<boolean>(false)
@@ -74,7 +76,6 @@ const Home: React.FC<HomeProps> = () => {
         {activeAddress ? (
           <div className="w-full max-w-5xl">
             <h2 className="text-xl font-semibold mb-6 text-gray-800">Available Actions</h2>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <button
                 className={`${cardBase} flex flex-col items-start gap-3 p-5`}
@@ -125,6 +126,46 @@ const Home: React.FC<HomeProps> = () => {
                 <div>
                   <p className="text-base font-medium text-gray-900">Contract Interactions</p>
                   <p className="text-sm text-gray-500">Call ARC-4 or app methods.</p>
+                </div>
+              </button>
+
+              {/* Service links: Register vehicle, Transfer Title, Help */}
+              <button
+                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                onClick={() => onNavigate ? onNavigate('register') : null}
+              >
+                <div className="p-3 rounded-lg bg-yellow-100 text-yellow-700">
+                  <AiOutlineStar className={iconStyle} />
+                </div>
+                <div>
+                  <p className="text-base font-medium text-gray-900">Register vehicle</p>
+                  <p className="text-sm text-gray-500">Start a new vehicle registration.</p>
+                </div>
+              </button>
+
+              <button
+                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                onClick={() => onNavigate ? onNavigate('transfer') : null}
+              >
+                <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
+                  <BsArrowUpRightCircle className={iconStyle} />
+                </div>
+                <div>
+                  <p className="text-base font-medium text-gray-900">Transfer Title</p>
+                  <p className="text-sm text-gray-500">Transfer ownership of a vehicle.</p>
+                </div>
+              </button>
+
+              <button
+                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                onClick={() => onNavigate ? onNavigate('help') : null}
+              >
+                <div className="p-3 rounded-lg bg-slate-100 text-slate-700">
+                  <AiOutlineSend className={iconStyle} />
+                </div>
+                <div>
+                  <p className="text-base font-medium text-gray-900">Help</p>
+                  <p className="text-sm text-gray-500">Get help and guidance on services.</p>
                 </div>
               </button>
             </div>
