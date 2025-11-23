@@ -72,109 +72,121 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       </header>
 
       {/* Features */}
-      <main id="features" className="flex-1 flex flex-col items-center px-6 pb-16">
-        {activeAddress ? (
-          <div className="w-full max-w-5xl">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Available Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (activeAddress ? setOpenPaymentModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-              >
-                <div className="p-3 rounded-lg bg-indigo-100 text-indigo-700">
-                  <AiOutlineSend className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Send Payment</p>
-                  <p className="text-sm text-gray-500">Transfer ALGO or assets.</p>
-                </div>
-              </button>
+      <main id="features" className="flex-1 flex flex-col items-center px-6 pb-16 w-full">
+        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8">
+          {/* Left: main actions or prompt */}
+          <div className="flex-1">
+            {activeAddress ? (
+              <div>
+                <h2 className="text-xl font-semibold mb-6 text-gray-800">Available Actions</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                  <button
+                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                    onClick={() => (activeAddress ? setOpenPaymentModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
+                  >
+                    <div className="p-3 rounded-lg bg-indigo-100 text-indigo-700">
+                      <AiOutlineSend className={iconStyle} />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium text-gray-900">Send Payment</p>
+                      <p className="text-sm text-gray-500">Transfer ALGO or assets.</p>
+                    </div>
+                  </button>
 
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (activeAddress ? setOpenMintModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-              >
-                <div className="p-3 rounded-lg bg-pink-100 text-pink-700">
-                  <AiOutlineStar className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Mint NFT</p>
-                  <p className="text-sm text-gray-500">Create a simple NFT collection.</p>
-                </div>
-              </button>
+                  <button
+                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                    onClick={() => (activeAddress ? setOpenMintModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
+                  >
+                    <div className="p-3 rounded-lg bg-pink-100 text-pink-700">
+                      <AiOutlineStar className={iconStyle} />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium text-gray-900">Mint NFT</p>
+                      <p className="text-sm text-gray-500">Create a simple NFT collection.</p>
+                    </div>
+                  </button>
 
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (activeAddress ? setOpenTokenModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-              >
-                <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
-                  <BsArrowUpRightCircle className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Create Token</p>
-                  <p className="text-sm text-gray-500">Spin up a new ASA instantly.</p>
-                </div>
-              </button>
+                  <button
+                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                    onClick={() => (activeAddress ? setOpenTokenModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
+                  >
+                    <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
+                      <BsArrowUpRightCircle className={iconStyle} />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium text-gray-900">Create Token</p>
+                      <p className="text-sm text-gray-500">Spin up a new ASA instantly.</p>
+                    </div>
+                  </button>
 
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (activeAddress ? setOpenAppCallsModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-              >
-                <div className="p-3 rounded-lg bg-blue-100 text-blue-700">
-                  <AiOutlineDeploymentUnit className={iconStyle} />
+                  <button
+                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
+                    onClick={() => (activeAddress ? setOpenAppCallsModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
+                  >
+                    <div className="p-3 rounded-lg bg-blue-100 text-blue-700">
+                      <AiOutlineDeploymentUnit className={iconStyle} />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium text-gray-900">Contract Interactions</p>
+                      <p className="text-sm text-gray-500">Call ARC-4 or app methods.</p>
+                    </div>
+                  </button>
                 </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Contract Interactions</p>
-                  <p className="text-sm text-gray-500">Call ARC-4 or app methods.</p>
-                </div>
-              </button>
+              </div>
+            ) : (
+              <div className="text-center mt-8 text-gray-600">
+                <p>Connect your wallet to access all actions.</p>
+              </div>
+            )}
+          </div>
 
-              {/* Service links: Register vehicle, Transfer Title, Help */}
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (onNavigate ? onNavigate('register') : null)}
-              >
-                <div className="p-3 rounded-lg bg-yellow-100 text-yellow-700">
-                  <AiOutlineStar className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Register vehicle</p>
-                  <p className="text-sm text-gray-500">Start a new vehicle registration.</p>
-                </div>
-              </button>
+          {/* Right: services sidebar */}
+          <aside className="w-full lg:w-80">
+            <div className="sticky top-24">
+              <h3 className="text-lg font-semibold mb-4">Services</h3>
+              <div className="flex flex-col gap-3">
+                <button
+                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
+                  onClick={() => (onNavigate ? onNavigate('register') : null)}
+                >
+                  <div className="p-2 rounded-md bg-yellow-100 text-yellow-700">
+                    <AiOutlineStar />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Register Vehicle</div>
+                    <div className="text-sm text-gray-500">Start a new vehicle registration</div>
+                  </div>
+                </button>
 
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (onNavigate ? onNavigate('transfer') : null)}
-              >
-                <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
-                  <BsArrowUpRightCircle className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Transfer Title</p>
-                  <p className="text-sm text-gray-500">Transfer ownership of a vehicle.</p>
-                </div>
-              </button>
+                <button
+                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
+                  onClick={() => (onNavigate ? onNavigate('transfer') : null)}
+                >
+                  <div className="p-2 rounded-md bg-emerald-100 text-emerald-700">
+                    <BsArrowUpRightCircle />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Transfer Title</div>
+                    <div className="text-sm text-gray-500">Transfer ownership of a vehicle</div>
+                  </div>
+                </button>
 
-              <button
-                className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                onClick={() => (onNavigate ? onNavigate('help') : null)}
-              >
-                <div className="p-3 rounded-lg bg-slate-100 text-slate-700">
-                  <AiOutlineSend className={iconStyle} />
-                </div>
-                <div>
-                  <p className="text-base font-medium text-gray-900">Help</p>
-                  <p className="text-sm text-gray-500">Get help and guidance on services.</p>
-                </div>
-              </button>
+                <button
+                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
+                  onClick={() => (onNavigate ? onNavigate('help') : null)}
+                >
+                  <div className="p-2 rounded-md bg-slate-100 text-slate-700">
+                    <AiOutlineSend />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Help</div>
+                    <div className="text-sm text-gray-500">Get help and guidance on services</div>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center mt-8 text-gray-600">
-            <p>Connect your wallet to access all actions.</p>
-          </div>
-        )}
+          </aside>
+        </div>
       </main>
 
       {/* Footer */}
