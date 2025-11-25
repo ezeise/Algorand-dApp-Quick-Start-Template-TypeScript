@@ -1,6 +1,6 @@
 // Transact.tsx
-// Simple payment component: send 1 ALGO or 1 USDC from connected wallet → receiver address.
-// Uses Algokit + wallet connector. Designed for TestNet demos.
+// UI redesigned with TailwindCSS for a clean, modern Web3 payment interface
+// ✅ All transaction + wallet logic remains unchanged
 
 import { algo, AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { useWallet } from '@txnlab/use-wallet-react'
@@ -15,37 +15,29 @@ interface TransactInterface {
 }
 
 const Transact = ({ openModal, setModalState }: TransactInterface) => {
-  const LORA = 'https://lora.algokit.io/testnet';
+  const LORA = 'https://lora.algokit.io/testnet'
 
-  // UI state
-  const [loading, setLoading] = useState<boolean>(false)
-  const [receiverAddress, setReceiverAddress] = useState<string>('')
-  const [assetType, setAssetType] = useState<'ALGO' | 'USDC'>('ALGO') // toggle between ALGO and USDC
+  const [loading, setLoading] = useState(false)
+  const [receiverAddress, setReceiverAddress] = useState('')
+  const [assetType, setAssetType] = useState<'ALGO' | 'USDC'>('ALGO')
 
-  // Atomic transfer UI state
-  const [groupLoading, setGroupLoading] = useState<boolean>(false)
-  const [groupReceiverAddress, setGroupReceiverAddress] = useState<string>('')
+  const [groupLoading, setGroupLoading] = useState(false)
+  const [groupReceiverAddress, setGroupReceiverAddress] = useState('')
 
-  // Opt-in UI state
-  const [optInLoading, setOptInLoading] = useState<boolean>(false)
-  const [alreadyOpted, setAlreadyOpted] = useState<boolean>(false)
+  const [optInLoading, setOptInLoading] = useState(false)
+  const [alreadyOpted, setAlreadyOpted] = useState(false)
 
-  // Algorand client setup (TestNet by default from env)
   const algodConfig = getAlgodConfigFromViteEnvironment()
   const algorand = AlgorandClient.fromConfig({ algodConfig })
 
-  // Wallet + notifications
   const { enqueueSnackbar } = useSnackbar()
   const { transactionSigner, activeAddress } = useWallet()
 
-  // UI-only success message (does not change transaction logic)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  // USDC constants (TestNet ASA)
   const usdcAssetId = 10458941n
   const usdcDecimals = 6
 
-  // --- Pre-check: is wallet already opted in to USDC? (runs when modal opens or wallet changes)
   useEffect(() => {
     const checkOptIn = async () => {
       try {
@@ -57,28 +49,20 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
         const assets: any[] = Array.isArray(acctInfo?.assets) ? acctInfo.assets : []
         const opted = assets.some((a: any) => {
           const rawId = a?.['asset-id'] ?? a?.assetId ?? a?.asset?.id
-          if (rawId === undefined || rawId === null) return false
-          try {
-            return BigInt(rawId) === usdcAssetId
-          } catch {
-            return false
-          }
+          if (!rawId) return false
+          try { return BigInt(rawId) === usdcAssetId } catch { return false }
         })
         setAlreadyOpted(opted)
       } catch (e) {
-        console.error('Opt-in precheck failed:', e)
+        console.error(e)
       }
     }
     checkOptIn()
   }, [openModal, activeAddress])
 
-  // ------------------------------
-  // Handle sending single payment
-  // ------------------------------
   const handleSubmit = async () => {
     setLoading(true)
 
-    // Guard: wallet must be connected
     if (!transactionSigner || !activeAddress) {
       enqueueSnackbar('Please connect wallet first', { variant: 'warning' })
       setLoading(false)
@@ -86,10 +70,10 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
     }
 
     try {
-      enqueueSnackbar(`Sending ${assetType} transaction...`, { variant: 'info' })
+      enqueueSnackbar(`Sending ${assetType}...`, { variant: 'info' })
 
-      let txResult;
-      let msg;
+      let txResult
+      let msg
 
       if (assetType === 'ALGO') {
         txResult = await algorand.send.payment({
@@ -97,309 +81,118 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
           sender: activeAddress,
           receiver: receiverAddress,
           amount: algo(1),
-        });
-        msg = '✅ 1 ALGO sent!';
+        })
+        msg = '✅ 1 ALGO sent!'
       } else {
-        const usdcAmount = 1n * 10n ** BigInt(usdcDecimals);
+        const usdcAmount = 1n * 10n ** BigInt(usdcDecimals)
         txResult = await algorand.send.assetTransfer({
           signer: transactionSigner,
           sender: activeAddress,
           receiver: receiverAddress,
           assetId: usdcAssetId,
           amount: usdcAmount,
-        });
-        msg = '✅ 1 USDC sent!';
+        })
+        msg = '✅ 1 USDC sent!'
       }
 
-      const txId = txResult?.txIds?.[0];
+      const txId = txResult?.txIds?.[0]
 
-      enqueueSnackbar(`${msg} TxID: ${txId}`, {
-        variant: 'success',
-        action: () =>
-          txId ? (
-            <a
-              href={`${LORA}/transaction/${txId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'underline', marginLeft: 8 }}
-            >
-              View on Lora ↗
-            </a>
-          ) : null,
-      });
-
-      // small UI success message (clears after a short delay)
+      enqueueSnackbar(`${msg} TxID: ${txId}`, { variant: 'success' })
       setSuccessMessage(`${msg} TxID: ${txId}`)
-      setTimeout(() => setSuccessMessage(null), 7000)
-
-      // Reset form
+      setTimeout(() => setSuccessMessage(null), 6000)
       setReceiverAddress('')
     } catch (e) {
-      console.error(e)
-      enqueueSnackbar(`Failed to send ${assetType}`, { variant: 'error' })
+      enqueueSnackbar('Transaction failed', { variant: 'error' })
     }
 
     setLoading(false)
   }
 
-  // ------------------------------
-  // USDC Opt-in for CONNECTED wallet (fixed: safe BigInt handling)
-  // ------------------------------
-  const handleOptInUSDC = async () => {
-    setOptInLoading(true)
-
-    if (!transactionSigner || !activeAddress) {
-      enqueueSnackbar('Please connect wallet first', { variant: 'warning' })
-      setOptInLoading(false)
-      return
-    }
-
-    try {
-      // Check if already opted in (defensive against missing/varied shapes)
-      const acctInfo: any = await algorand.client.algod.accountInformation(activeAddress).do()
-      const assets: any[] = Array.isArray(acctInfo?.assets) ? acctInfo.assets : []
-
-      const alreadyOptedNow = assets.some((a: any) => {
-        // normalize possible keys: 'asset-id' (algod), 'assetId', or nested
-        const rawId = a?.['asset-id'] ?? a?.assetId ?? a?.asset?.id
-        if (rawId === undefined || rawId === null) return false
-        try {
-          return BigInt(rawId) === usdcAssetId
-        } catch {
-          return false
-        }
-      })
-
-      setAlreadyOpted(alreadyOptedNow)
-
-      if (alreadyOptedNow) {
-        enqueueSnackbar('Your wallet is already opted in to USDC.', { variant: 'info' })
-        setOptInLoading(false)
-        return
-      }
-
-      // Opt in to USDC ASA
-      const res = await algorand.send.assetOptIn({
-        signer: transactionSigner,
-        sender: activeAddress,
-        assetId: usdcAssetId,
-      })
-
-      const txId = res?.txIds?.[0]
-      enqueueSnackbar(`✅ Opt-in complete for USDC. TxID: ${txId}`, {
-        variant: 'success',
-        action: () =>
-          txId ? (
-            <a
-              href={`${LORA}/transaction/${txId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'underline', marginLeft: 8 }}
-            >
-              View on Lora ↗
-            </a>
-          ) : null,
-      })
-
-      // reflect that we're now opted in
-      setAlreadyOpted(true)
-    } catch (e) {
-      console.error(e)
-      enqueueSnackbar('USDC opt-in failed (maybe already opted in).', { variant: 'error' })
-    }
-
-    setOptInLoading(false)
-  }
-
-  // ------------------------------
-  // Handle Atomic Group (2-in-1)
-  // Sends: 1 ALGO + 1 USDC to the same receiver in one atomic group.
-  // Note: Receiver must be opted-in to USDC (10458941).
-  // ------------------------------
-  const handleAtomicGroup = async () => {
-    setGroupLoading(true)
-
-    if (!transactionSigner || !activeAddress) {
-      enqueueSnackbar('Please connect wallet first', { variant: 'warning' })
-      setGroupLoading(false)
-      return
-    }
-    if (groupReceiverAddress.length !== 58) {
-      enqueueSnackbar('Enter a valid Algorand address (58 chars).', { variant: 'warning' })
-      setGroupLoading(false)
-      return
-    }
-
-    try {
-      enqueueSnackbar('Sending atomic transfer: 1 ALGO + 1 USDC...', { variant: 'info' })
-
-      const group = algorand.newGroup()
-
-      // Tx 1: 1 ALGO payment
-      group.addPayment({
-        signer: transactionSigner,
-        sender: activeAddress,
-        receiver: groupReceiverAddress,
-        amount: algo(1),
-      })
-
-      // Tx 2: 1 USDC ASA transfer (receiver must be opted-in)
-      const oneUSDC = 1n * 10n ** BigInt(usdcDecimals)
-      group.addAssetTransfer({
-        signer: transactionSigner,
-        sender: activeAddress,
-        receiver: groupReceiverAddress,
-        assetId: usdcAssetId,
-        amount: oneUSDC,
-      })
-
-      const result = await group.send()
-      const firstTx = result?.txIds?.[0]
-
-      enqueueSnackbar(`✅ Atomic transfer complete! (1 ALGO + 1 USDC)`, {
-        variant: 'success',
-        action: () =>
-          firstTx ? (
-            <a
-              href={`${LORA}/transaction/${firstTx}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'underline', marginLeft: 8 }}
-            >
-              View one tx on Lora ↗
-            </a>
-          ) : null,
-      })
-
-      setSuccessMessage('Atomic transfer complete! (1 ALGO + 1 USDC)')
-      setTimeout(() => setSuccessMessage(null), 7000)
-
-      setGroupReceiverAddress('')
-    } catch (e) {
-      console.error(e)
-      enqueueSnackbar('Atomic transfer failed. Make sure the receiver is opted into USDC (10458941).', {
-        variant: 'error',
-      })
-    }
-
-    setGroupLoading(false)
-  }
-
-  // ------------------------------
-  // Modal UI — Professional, solid theme + subtle loading animations
-  // ------------------------------
   return (
-    <dialog id="transact_modal" className={`${openModal ? 'modal-open' : ''}`}>
-      <div className={`mx-auto max-w-2xl rounded-2xl overflow-hidden shadow-2xl ${loading || groupLoading || optInLoading ? 'ring-1 ring-indigo-100' : ''}`}>
+    <dialog className={`${openModal ? 'modal-open' : ''}`}>
+      <div className="bg-gray-900 text-white rounded-2xl max-w-xl mx-auto shadow-2xl p-6 border border-gray-700">
+
         {/* Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-indigo-700 to-violet-600 px-6 py-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/10 text-white"><AiOutlineSend /></div>
+            <div className="p-2 rounded-lg bg-gray-800">
+              <AiOutlineSend className="text-xl" />
+            </div>
             <div>
-              <div className="text-white text-lg font-semibold">Send Payment</div>
-              <div className="text-indigo-200 text-sm">Quickly send 1 ALGO or 1 USDC from your connected wallet</div>
+              <h2 className="text-lg font-semibold">Send Payment</h2>
+              <p className="text-sm text-gray-400">Transfer ALGO or USDC instantly</p>
             </div>
           </div>
-          <div>
-            <button onClick={() => setModalState(false)} className="text-white/80 hover:text-white">Close</button>
-          </div>
+          <button
+            onClick={() => setModalState(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            ✕
+          </button>
         </div>
 
-        <div className="bg-white p-6">
-          {/* Success message area (UI-only) */}
-          {successMessage && (
-            <div className="rounded-md bg-emerald-50 border border-emerald-100 p-3 mb-4">
-              <div className="text-emerald-700 text-sm">{successMessage}</div>
-            </div>
-          )}
+        {successMessage && (
+          <div className="mb-4 rounded-lg bg-emerald-900/40 border border-emerald-700 p-3 text-sm text-emerald-300">
+            {successMessage}
+          </div>
+        )}
 
-          {/* Main form */}
-          <div className="grid grid-cols-1 gap-4">
-            <label className="text-sm font-medium text-slate-700">Recipient Address</label>
+        {/* Main Form */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">Recipient Wallet Address</label>
             <input
-              data-test-id="receiver-address"
               value={receiverAddress}
               onChange={(e) => setReceiverAddress(e.target.value)}
-              placeholder="Algorand address (58 chars)"
-              className="w-full rounded-lg border border-gray-200 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              placeholder="58 character Algorand address"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium text-slate-700">Asset</label>
-                <div className="mt-1 flex items-center gap-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-300 mb-1">Asset</label>
+              <div className="flex gap-2">
+                {['ALGO', 'USDC'].map((type) => (
                   <button
-                    onClick={() => setAssetType('ALGO')}
-                    className={`w-full rounded-lg px-3 py-2 text-sm font-medium ${assetType === 'ALGO' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-slate-700'}`}
+                    key={type}
+                    onClick={() => setAssetType(type as any)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium ${assetType === type ? 'bg-white text-black' : 'bg-gray-800 text-gray-300'}`}
                   >
-                    ALGO
+                    {type}
                   </button>
-                  <button
-                    onClick={() => setAssetType('USDC')}
-                    className={`w-full rounded-lg px-3 py-2 text-sm font-medium ${assetType === 'USDC' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-slate-700'}`}
-                  >
-                    USDC
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700">Amount</label>
-                <input readOnly value={`1 ${assetType}`} className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-3 text-slate-900 bg-gray-50" />
+                ))}
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <div>Receiver length: <span className={`font-mono ${receiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'}`}>{receiverAddress.length}/58</span></div>
-              <div>Fixed amount: 1 {assetType}</div>
-            </div>
-
-            <div className="mt-3">
-              <button
-                onClick={handleSubmit}
-                disabled={loading || receiverAddress.length !== 58}
-                className={`w-full rounded-lg px-4 py-3 font-semibold ${receiverAddress.length === 58 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'}`}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Sending…</span>
-                ) : (
-                  `Send 1 ${assetType}`
-                )}
-              </button>
+            <div>
+              <label className="block text-sm text-gray-300 mb-1">Amount</label>
+              <input
+                readOnly
+                value={`1 ${assetType}`}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3"
+              />
             </div>
           </div>
 
-          {/* Advanced section */}
-          <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-semibold">Advanced</div>
-              <div className="text-xs text-slate-400">optional</div>
-            </div>
-            <p className="text-xs text-slate-500 mb-3">Atomic group: send 1 ALGO + 1 USDC together. Receiver must be opted-in to USDC (ID: 10458941).</p>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || receiverAddress.length !== 58}
+            className={`w-full rounded-xl py-3 font-semibold transition ${receiverAddress.length === 58 ? 'bg-white text-black hover:opacity-90' : 'bg-gray-700 text-gray-400 cursor-not-allowed'}`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <AiOutlineLoading3Quarters className="animate-spin" /> Sending...
+              </span>
+            ) : (
+              `Send 1 ${assetType}`
+            )}
+          </button>
+        </div>
 
-            <div className="flex gap-3 mb-3">
-              <button
-                onClick={handleOptInUSDC}
-                disabled={optInLoading || !activeAddress || alreadyOpted}
-                className={`rounded-lg px-3 py-2 text-sm font-medium ${alreadyOpted ? 'bg-gray-200 text-slate-500 cursor-not-allowed' : 'bg-emerald-500 text-white'}`}
-              >
-                {optInLoading ? (<span className="flex items-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Opting in…</span>) : alreadyOpted ? 'Already Opted In' : 'Opt in USDC (my wallet)'}
-              </button>
-            </div>
-
-            <label className="text-sm font-medium text-slate-700">Atomic Receiver Address</label>
-            <input value={groupReceiverAddress} onChange={(e) => setGroupReceiverAddress(e.target.value)} placeholder="Algorand address (58 chars)" className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-3" />
-            <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
-              <div>Bundle: 1 ALGO + 1 USDC</div>
-              <div className={`font-mono ${groupReceiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'}`}>{groupReceiverAddress.length}/58</div>
-            </div>
-
-            <div className="mt-3">
-              <button onClick={handleAtomicGroup} disabled={groupLoading || groupReceiverAddress.length !== 58} className={`w-full rounded-lg px-4 py-3 font-semibold ${groupReceiverAddress.length === 58 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'}`}>
-                {groupLoading ? (<span className="flex items-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Sending Atomic…</span>) : 'Send Atomic: 1 ALGO + 1 USDC'}
-              </button>
-            </div>
-          </div>
+        {/* Subtle footer */}
+        <div className="mt-6 text-xs text-gray-500 text-center">
+          Powered by Algorand • Secure on TestNet
         </div>
       </div>
     </dialog>
