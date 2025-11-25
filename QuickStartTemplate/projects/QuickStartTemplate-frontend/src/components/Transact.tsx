@@ -5,7 +5,7 @@
 import { algo, AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useSnackbar } from 'notistack'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AiOutlineLoading3Quarters, AiOutlineSend } from 'react-icons/ai'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 

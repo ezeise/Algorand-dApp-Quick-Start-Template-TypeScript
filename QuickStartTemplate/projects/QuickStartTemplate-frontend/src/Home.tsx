@@ -1,4 +1,4 @@
-// Home.tsx - Professional Clean Light UI
+// Home.tsx - Dark UI (Black & Grey Background, White Headings)
 
 import { useWallet } from '@txnlab/use-wallet-react'
 import React, { useState } from 'react'
@@ -16,8 +16,9 @@ interface HomeProps {
   onNavigate?: (view: 'services' | 'register' | 'transfer' | 'help' | 'settings') => void
 }
 
-const cardBase = 'rounded-xl shadow-md hover:shadow-lg transition border border-gray-200 bg-white'
-const iconStyle = 'text-3xl text-gray-700'
+// Updated card styling for dark theme
+const cardBase = 'rounded-xl shadow-md hover:shadow-lg transition border border-gray-700 bg-gray-900'
+const iconStyle = 'text-3xl text-gray-200'
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
@@ -29,169 +30,97 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const { activeAddress } = useWallet()
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-inter">
+    <div className="min-h-screen flex flex-col bg-black text-gray-200 antialiased">
+
       {/* Navbar */}
-      <nav className="w-full flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-20">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-indigo-600 text-white text-sm font-semibold">
-            A
-          </div>
-          <div className="font-semibold text-gray-800 tracking-wide">Algorand dApp Template</div>
+      <nav className="w-full flex items-center justify-between px-6 py-4 bg-gray-900 sticky top-0 z-30 border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-gray-700 to-gray-500 text-white font-bold">A</div>
+          <div className="text-lg font-semibold tracking-tight text-white">Algorand dApp Template</div>
         </div>
 
-        <button
-          onClick={() => setOpenWalletModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition"
-        >
-          <BsWallet2 className="text-white" />
-          {activeAddress ? 'Wallet Linked' : 'Connect Wallet'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpenWalletModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-shadow shadow-sm bg-gray-800 hover:bg-gray-700"
+          >
+            <BsWallet2 className="text-white" />
+            <span className="text-white">{activeAddress ? 'Wallet Linked' : 'Connect Wallet'}</span>
+          </button>
+        </div>
       </nav>
 
       {/* Hero */}
-      <header className="flex flex-col items-center text-center py-16 px-6">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full px-4 py-1 text-sm font-medium mb-5">
-          <AiOutlineWallet />
-          <span>Algorand Universal Actions</span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-          Build Faster with a Universal dApp Surface
-        </h1>
-        <p className="text-gray-600 max-w-xl mb-8">
-          Trigger common Algorand actions — payments, NFT minting, token creation, and contract calls — from a clean, unified interface.
-        </p>
+      <header className="relative overflow-hidden bg-gradient-to-b from-black via-gray-900 to-black">
+        <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7">
 
-        {!activeAddress && (
-          <button
-            onClick={() => setOpenWalletModal(true)}
-            className="px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 shadow-md transition"
-          >
-            Connect Wallet to Get Started
-          </button>
-        )}
-      </header>
+              <p className="inline-flex items-center gap-2 text-sm font-medium text-gray-300 bg-gray-800 rounded-full px-3 py-1 mb-4">
+                <AiOutlineWallet className="text-white" />
+                Algorand Universal Actions
+              </p>
 
-      {/* Features */}
-      <main id="features" className="flex-1 flex flex-col items-center px-6 pb-16 w-full">
-        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8">
-          {/* Left: main actions or prompt */}
-          <div className="flex-1">
-            {activeAddress ? (
-              <div>
-                <h2 className="text-xl font-semibold mb-6 text-gray-800">Available Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                  <button
-                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                    onClick={() => (activeAddress ? setOpenPaymentModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-                  >
-                    <div className="p-3 rounded-lg bg-indigo-100 text-indigo-700">
-                      <AiOutlineSend className={iconStyle} />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium text-gray-900">Send Payment</p>
-                      <p className="text-sm text-gray-500">Transfer ALGO or assets.</p>
-                    </div>
-                  </button>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-4">
+                Build secure Web3 experiences on Algorand — fast.
+              </h1>
 
-                  <button
-                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                    onClick={() => (activeAddress ? setOpenMintModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-                  >
-                    <div className="p-3 rounded-lg bg-pink-100 text-pink-700">
-                      <AiOutlineStar className={iconStyle} />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium text-gray-900">Mint NFT</p>
-                      <p className="text-sm text-gray-500">Create a simple NFT collection.</p>
-                    </div>
-                  </button>
+              <p className="text-gray-400 max-w-2xl text-lg mb-6">
+                A unified interface to experiment with payments, NFT minting, token creation, and smart contract interactions. Optimized for developers and product teams.
+              </p>
 
-                  <button
-                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                    onClick={() => (activeAddress ? setOpenTokenModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-                  >
-                    <div className="p-3 rounded-lg bg-emerald-100 text-emerald-700">
-                      <BsArrowUpRightCircle className={iconStyle} />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium text-gray-900">Create Token</p>
-                      <p className="text-sm text-gray-500">Spin up a new ASA instantly.</p>
-                    </div>
-                  </button>
-
-                  <button
-                    className={`${cardBase} flex flex-col items-start gap-3 p-5`}
-                    onClick={() => (activeAddress ? setOpenAppCallsModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}
-                  >
-                    <div className="p-3 rounded-lg bg-blue-100 text-blue-700">
-                      <AiOutlineDeploymentUnit className={iconStyle} />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium text-gray-900">Contract Interactions</p>
-                      <p className="text-sm text-gray-500">Call ARC-4 or app methods.</p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center mt-8 text-gray-600">
-                <p>Connect your wallet to access all actions.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Right: services sidebar */}
-          <aside className="w-full lg:w-80">
-            <div className="sticky top-24">
-              <h3 className="text-lg font-semibold mb-4">Services</h3>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
-                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
-                  onClick={() => (onNavigate ? onNavigate('register') : null)}
+                  onClick={() => (activeAddress ? setOpenPaymentModal(true) : setOpenWalletModal(true))}
+                  className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-5 py-3 rounded-lg font-semibold shadow-md"
                 >
-                  <div className="p-2 rounded-md bg-yellow-100 text-yellow-700">
-                    <AiOutlineStar />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Register Vehicle</div>
-                    <div className="text-sm text-gray-500">Start a new vehicle registration</div>
-                  </div>
+                  Get Started
                 </button>
 
                 <button
-                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
-                  onClick={() => (onNavigate ? onNavigate('transfer') : null)}
-                >
-                  <div className="p-2 rounded-md bg-emerald-100 text-emerald-700">
-                    <BsArrowUpRightCircle />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Transfer Title</div>
-                    <div className="text-sm text-gray-500">Transfer ownership of a vehicle</div>
-                  </div>
-                </button>
-
-                <button
-                  className={`${cardBase} text-left px-4 py-3 flex items-center gap-3`}
                   onClick={() => (onNavigate ? onNavigate('help') : null)}
+                  className="inline-flex items-center gap-2 bg-transparent text-white px-4 py-3 rounded-lg font-medium border border-gray-600"
                 >
-                  <div className="p-2 rounded-md bg-slate-100 text-slate-700">
-                    <AiOutlineSend />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Help</div>
-                    <div className="text-sm text-gray-500">Get help and guidance on services</div>
-                  </div>
+                  Learn More
                 </button>
               </div>
             </div>
-          </aside>
+
+            <div className="lg:col-span-5">
+              <div className="rounded-2xl bg-gray-900 border border-gray-700 p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-sm text-gray-400">Account</div>
+                    <div className="text-base font-medium text-white">{activeAddress ? activeAddress : 'Not connected'}</div>
+                  </div>
+                  <button onClick={() => setOpenWalletModal(true)} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm">
+                    {activeAddress ? 'Manage' : 'Connect'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-gray-800">
+                    <div className="text-sm text-gray-400">Balance</div>
+                    <div className="font-medium text-white mt-1">— ALGO</div>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-gray-800">
+                    <div className="text-sm text-gray-400">Network</div>
+                    <div className="font-medium text-white mt-1"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <h2 className="text-2xl font-semibold text-white mb-4">Available Actions</h2>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full py-5 text-center text-sm text-gray-500 border-t border-gray-200 bg-white">
-        © {new Date().getFullYear()} Algorand Universal dApp Template. Built for clarity & speed.
+      <footer className="mt-12 py-8 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} Algorand Universal dApp Template
       </footer>
 
       {/* Modals */}
