@@ -38,6 +38,9 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
   const { enqueueSnackbar } = useSnackbar()
   const { transactionSigner, activeAddress } = useWallet()
 
+  // UI-only success message (does not change transaction logic)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
   // USDC constants (TestNet ASA)
   const usdcAssetId = 10458941n
   const usdcDecimals = 6
@@ -124,6 +127,10 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
             </a>
           ) : null,
       });
+
+      // small UI success message (clears after a short delay)
+      setSuccessMessage(`${msg} TxID: ${txId}`)
+      setTimeout(() => setSuccessMessage(null), 7000)
 
       // Reset form
       setReceiverAddress('')
@@ -264,6 +271,9 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
           ) : null,
       })
 
+      setSuccessMessage('Atomic transfer complete! (1 ALGO + 1 USDC)')
+      setTimeout(() => setSuccessMessage(null), 7000)
+
       setGroupReceiverAddress('')
     } catch (e) {
       console.error(e)
@@ -279,248 +289,117 @@ const Transact = ({ openModal, setModalState }: TransactInterface) => {
   // Modal UI — Professional, solid theme + subtle loading animations
   // ------------------------------
   return (
-    <dialog
-      id="transact_modal"
-      className={`modal modal-bottom sm:modal-middle ${openModal ? 'modal-open' : ''}`}
-    >
-      <div
-        className={`
-          modal-box max-w-xl rounded-2xl border border-gray-200
-          bg-white text-slate-900 p-6 sm:p-7 shadow-2xl
-          ${loading || groupLoading || optInLoading ? 'ring-1 ring-indigo-100' : ''}
-        `}
-      >
-        {/* Top loading bar */}
-        {(loading || groupLoading || optInLoading) && (
-          <div className="relative h-1 w-full mb-4 overflow-hidden rounded bg-gray-100">
-            <div className="absolute inset-y-0 left-0 w-1/3 animate-[loading_1.2s_ease-in-out_infinite] bg-indigo-500" />
-            <style>{`
-              @keyframes loading {
-                0%   { transform: translateX(-120%); }
-                50%  { transform: translateX(60%); }
-                100% { transform: translateX(220%); }
-              }
-            `}</style>
-          </div>
-        )}
-
-        {/* Primary section: simple send */}
-        <div>
-          <div className="flex items-start justify-between gap-4 mb-4">
+    <dialog id="transact_modal" className={`${openModal ? 'modal-open' : ''}`}>
+      <div className={`mx-auto max-w-2xl rounded-2xl overflow-hidden shadow-2xl ${loading || groupLoading || optInLoading ? 'ring-1 ring-indigo-100' : ''}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between bg-gradient-to-r from-indigo-700 to-violet-600 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-white/10 text-white"><AiOutlineSend /></div>
             <div>
-              <h3 className="flex items-center gap-3 text-xl sm:text-2xl font-semibold tracking-tight">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50">
-                  <AiOutlineSend className="text-xl text-indigo-600" />
-                </span>
-                Send a Payment
-              </h3>
-              <p className="mt-1 text-sm text-slate-500">
-                Use a connected wallet to send 1 {assetType}. TestNet demo.
-              </p>
-            </div>
-            <button
-              className="hidden sm:inline text-xs text-slate-400 hover:text-slate-600"
-              onClick={() => setModalState(false)}
-            >
-              Close
-            </button>
-          </div>
-
-          {/* Receiver Address input (single send) */}
-          <div className={`form-control mt-4 ${loading ? 'opacity-90' : ''}`}>
-            <label className="label py-1">
-              <span className="label-text text-slate-700 font-medium">Receiver&apos;s Address</span>
-            </label>
-            <input
-              type="text"
-              data-test-id="receiver-address"
-              className="
-                input input-bordered w-full rounded-xl
-                bg-white text-slate-900 placeholder:text-slate-400
-                border-gray-200 focus:outline-none
-                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100
-                transition
-              "
-              placeholder="e.g., KPLX..."
-              value={receiverAddress}
-              onChange={(e) => setReceiverAddress(e.target.value)}
-            />
-            {/* Address length check for Algorand (58 chars) */}
-            <div className="flex justify-between items-center text-xs mt-2">
-              <span className="text-slate-500">Amount: 1 {assetType}</span>
-              <span
-                className={`font-mono ${
-                  receiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'
-                }`}
-              >
-                {receiverAddress.length}/58
-              </span>
+              <div className="text-white text-lg font-semibold">Send Payment</div>
+              <div className="text-indigo-200 text-sm">Quickly send 1 ALGO or 1 USDC from your connected wallet</div>
             </div>
           </div>
-
-          {/* Toggle ALGO ↔ USDC */}
-          <div className="flex justify-start gap-3 mt-4">
-            <button
-              type="button"
-              className={`
-                px-4 py-2 rounded-lg font-medium text-sm transition
-                border ${assetType === 'ALGO'
-                  ? 'bg-indigo-600 border-indigo-600 text-white'
-                  : 'bg-white border-gray-200 text-slate-700 hover:border-gray-300'}
-              `}
-              onClick={() => setAssetType('ALGO')}
-            >
-              ALGO
-            </button>
-            <button
-              type="button"
-              className={`
-                px-4 py-2 rounded-lg font-medium text-sm transition
-                border ${assetType === 'USDC'
-                  ? 'bg-indigo-600 border-indigo-600 text-white'
-                  : 'bg-white border-gray-200 text-slate-700 hover:border-gray-300'}
-              `}
-              onClick={() => setAssetType('USDC')}
-            >
-              USDC
-            </button>
-          </div>
-
-          {/* Action buttons (single send) */}
-          <div className="modal-action mt-6 flex flex-col-reverse sm:flex-row-reverse gap-3">
-            <button
-              data-test-id="send"
-              type="button"
-              className={`
-                btn w-full sm:w-auto rounded-xl font-semibold
-                transition-all duration-200
-                ${receiverAddress.length === 58
-                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  : 'bg-slate-200 text-slate-500 cursor-not-allowed'}
-              `}
-              onClick={handleSubmit}
-              disabled={loading || receiverAddress.length !== 58}
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <AiOutlineLoading3Quarters className="animate-spin" />
-                  Sending…
-                </span>
-              ) : (
-                `Send 1 ${assetType}`
-              )}
-            </button>
-            <button
-              type="button"
-              className="
-                btn w-full sm:w-auto rounded-xl
-                bg-white hover:bg-slate-50 border border-gray-200 text-slate-700
-              "
-              onClick={() => setModalState(false)}
-            >
-              Close
-            </button>
+          <div>
+            <button onClick={() => setModalState(false)} className="text-white/80 hover:text-white">Close</button>
           </div>
         </div>
 
-        {/* -------------------------------------------------
-            Advanced (Atomic + Opt-in) — visually secondary
-           ------------------------------------------------- */}
-        <div
-          className={`mt-8 p-4 rounded-xl border border-gray-100 bg-gray-50/70 ${
-            groupLoading ? 'opacity-90' : ''
-          }`}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-semibold text-slate-800">
-              Advanced: Atomic Transfer & USDC Opt-in
-            </h4>
-            <span className="text-[0.6rem] uppercase tracking-wide text-slate-400">
-              optional
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-            Demo atomic group: 1 ALGO + 1 USDC in one transaction group. Receiver must be opted in to USDC
-            (ID: 10458941).
-          </p>
+        <div className="bg-white p-6">
+          {/* Success message area (UI-only) */}
+          {successMessage && (
+            <div className="rounded-md bg-emerald-50 border border-emerald-100 p-3 mb-4">
+              <div className="text-emerald-700 text-sm">{successMessage}</div>
+            </div>
+          )}
 
-          {/* Opt-in button for connected wallet */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-3">
-            <button
-              type="button"
-              className={`
-                btn rounded-xl w-full sm:w-auto text-sm
-                ${alreadyOpted
-                  ? 'bg-gray-200 text-slate-500 cursor-not-allowed'
-                  : 'bg-emerald-500 hover:bg-emerald-600 text-white'}
-              `}
-              onClick={handleOptInUSDC}
-              disabled={optInLoading || !activeAddress || alreadyOpted}
-            >
-              {optInLoading ? (
-                <span className="flex items-center gap-2">
-                  <AiOutlineLoading3Quarters className="animate-spin" />
-                  Opting in…
-                </span>
-              ) : alreadyOpted ? (
-                'Already Opted In'
-              ) : (
-                'Opt in USDC (my wallet)'
-              )}
-            </button>
-          </div>
-
-          {/* Receiver input (for atomic group) */}
-          <div className="form-control">
-            <label className="label py-1">
-              <span className="label-text text-slate-700 font-medium text-sm">Receiver&apos;s Address</span>
-            </label>
+          {/* Main form */}
+          <div className="grid grid-cols-1 gap-4">
+            <label className="text-sm font-medium text-slate-700">Recipient Address</label>
             <input
-              type="text"
-              className="
-                input input-bordered w-full rounded-xl
-                bg-white text-slate-900 placeholder:text-slate-400
-                border-gray-200 focus:outline-none
-                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100
-                transition
-              "
-              placeholder="e.g., KPLX..."
-              value={groupReceiverAddress}
-              onChange={(e) => setGroupReceiverAddress(e.target.value)}
+              data-test-id="receiver-address"
+              value={receiverAddress}
+              onChange={(e) => setReceiverAddress(e.target.value)}
+              placeholder="Algorand address (58 chars)"
+              className="w-full rounded-lg border border-gray-200 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
-            <div className="flex justify-between items-center text-[0.65rem] mt-2">
-              <span className="text-slate-500">Bundle: 1 ALGO + 1 USDC</span>
-              <span
-                className={`font-mono ${
-                  groupReceiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'
-                }`}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Asset</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <button
+                    onClick={() => setAssetType('ALGO')}
+                    className={`w-full rounded-lg px-3 py-2 text-sm font-medium ${assetType === 'ALGO' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-slate-700'}`}
+                  >
+                    ALGO
+                  </button>
+                  <button
+                    onClick={() => setAssetType('USDC')}
+                    className={`w-full rounded-lg px-3 py-2 text-sm font-medium ${assetType === 'USDC' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-slate-700'}`}
+                  >
+                    USDC
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700">Amount</label>
+                <input readOnly value={`1 ${assetType}`} className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-3 text-slate-900 bg-gray-50" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <div>Receiver length: <span className={`font-mono ${receiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'}`}>{receiverAddress.length}/58</span></div>
+              <div>Fixed amount: 1 {assetType}</div>
+            </div>
+
+            <div className="mt-3">
+              <button
+                onClick={handleSubmit}
+                disabled={loading || receiverAddress.length !== 58}
+                className={`w-full rounded-lg px-4 py-3 font-semibold ${receiverAddress.length === 58 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'}`}
               >
-                {groupReceiverAddress.length}/58
-              </span>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Sending…</span>
+                ) : (
+                  `Send 1 ${assetType}`
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Atomic send button */}
-          <button
-            type="button"
-            className={`
-              mt-4 btn w-full sm:w-auto rounded-xl font-semibold text-sm
-              ${groupReceiverAddress.length === 58
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                : 'bg-slate-200 text-slate-500 cursor-not-allowed'}
-            `}
-            onClick={handleAtomicGroup}
-            disabled={groupLoading || groupReceiverAddress.length !== 58}
-          >
-            {groupLoading ? (
-              <span className="flex items-center gap-2">
-                <AiOutlineLoading3Quarters className="animate-spin" />
-                Sending Atomic…
-              </span>
-            ) : (
-              'Send Atomic: 1 ALGO + 1 USDC'
-            )}
-          </button>
+          {/* Advanced section */}
+          <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-semibold">Advanced</div>
+              <div className="text-xs text-slate-400">optional</div>
+            </div>
+            <p className="text-xs text-slate-500 mb-3">Atomic group: send 1 ALGO + 1 USDC together. Receiver must be opted-in to USDC (ID: 10458941).</p>
+
+            <div className="flex gap-3 mb-3">
+              <button
+                onClick={handleOptInUSDC}
+                disabled={optInLoading || !activeAddress || alreadyOpted}
+                className={`rounded-lg px-3 py-2 text-sm font-medium ${alreadyOpted ? 'bg-gray-200 text-slate-500 cursor-not-allowed' : 'bg-emerald-500 text-white'}`}
+              >
+                {optInLoading ? (<span className="flex items-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Opting in…</span>) : alreadyOpted ? 'Already Opted In' : 'Opt in USDC (my wallet)'}
+              </button>
+            </div>
+
+            <label className="text-sm font-medium text-slate-700">Atomic Receiver Address</label>
+            <input value={groupReceiverAddress} onChange={(e) => setGroupReceiverAddress(e.target.value)} placeholder="Algorand address (58 chars)" className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-3" />
+            <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <div>Bundle: 1 ALGO + 1 USDC</div>
+              <div className={`font-mono ${groupReceiverAddress.length === 58 ? 'text-emerald-600' : 'text-rose-500'}`}>{groupReceiverAddress.length}/58</div>
+            </div>
+
+            <div className="mt-3">
+              <button onClick={handleAtomicGroup} disabled={groupLoading || groupReceiverAddress.length !== 58} className={`w-full rounded-lg px-4 py-3 font-semibold ${groupReceiverAddress.length === 58 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'}`}>
+                {groupLoading ? (<span className="flex items-center gap-2"><AiOutlineLoading3Quarters className="animate-spin"/> Sending Atomic…</span>) : 'Send Atomic: 1 ALGO + 1 USDC'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </dialog>
