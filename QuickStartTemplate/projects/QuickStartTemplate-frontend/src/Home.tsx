@@ -116,7 +116,75 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-semibold text-white mb-4">Available Actions</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <section className="lg:col-span-2">
+            <h2 className="text-2xl font-semibold text-white mb-4">Available Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+              <button className={`${cardBase} flex flex-col items-start gap-3 p-5`} onClick={() => (activeAddress ? setOpenPaymentModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}>
+                <div className="p-3 rounded-lg bg-gray-800 text-white"><AiOutlineSend className={iconStyle} /></div>
+                <div>
+                  <p className="text-base font-medium text-white">Send Payment</p>
+                  <p className="text-sm text-gray-400">Transfer ALGO or assets.</p>
+                </div>
+              </button>
+
+              <button className={`${cardBase} flex flex-col items-start gap-3 p-5`} onClick={() => (activeAddress ? setOpenMintModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}>
+                <div className="p-3 rounded-lg bg-gray-800 text-white"><AiOutlineStar className={iconStyle} /></div>
+                <div>
+                  <p className="text-base font-medium text-white">Mint NFT</p>
+                  <p className="text-sm text-gray-400">Create a simple NFT collection.</p>
+                </div>
+              </button>
+
+              <button className={`${cardBase} flex flex-col items-start gap-3 p-5`} onClick={() => (activeAddress ? setOpenTokenModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}>
+                <div className="p-3 rounded-lg bg-gray-800 text-white"><BsArrowUpRightCircle className={iconStyle} /></div>
+                <div>
+                  <p className="text-base font-medium text-white">Create Token</p>
+                  <p className="text-sm text-gray-400">Spin up a new ASA instantly.</p>
+                </div>
+              </button>
+
+              <button className={`${cardBase} flex flex-col items-start gap-3 p-5`} onClick={() => (activeAddress ? setOpenAppCallsModal(true) : (onNavigate ? onNavigate('settings') : setOpenWalletModal(true)))}>
+                <div className="p-3 rounded-lg bg-gray-800 text-white"><AiOutlineDeploymentUnit className={iconStyle} /></div>
+                <div>
+                  <p className="text-base font-medium text-white">Contract Interactions</p>
+                  <p className="text-sm text-gray-400">Call ARC-4 or app methods.</p>
+                </div>
+              </button>
+
+            </div>
+          </section>
+
+          <aside className="space-y-4">
+            <div className="p-4 rounded-xl bg-gray-900 shadow-sm border border-gray-700">
+              <h3 className="text-lg font-semibold mb-2 text-white">Services</h3>
+              <div className="flex flex-col gap-3">
+
+                <button className="text-left px-4 py-3 rounded-lg bg-gray-800 hover:bg-gray-700" onClick={() => (onNavigate ? onNavigate('register') : null)}>
+                  <div className="font-medium text-white">Register Vehicle</div>
+                  <div className="text-sm text-gray-400">Start a new vehicle registration</div>
+                </button>
+
+                <button className="text-left px-4 py-3 rounded-lg bg-gray-800 hover:bg-gray-700" onClick={() => (onNavigate ? onNavigate('transfer') : null)}>
+                  <div className="font-medium text-white">Transfer Title</div>
+                  <div className="text-sm text-gray-400">Transfer ownership of a vehicle</div>
+                </button>
+
+                <button className="text-left px-4 py-3 rounded-lg bg-gray-800 hover:bg-gray-700" onClick={() => (onNavigate ? onNavigate('help') : null)}>
+                  <div className="font-medium text-white">Help</div>
+                  <div className="text-sm text-gray-400">Get help and guidance on services</div>
+                </button>
+
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-gray-900 shadow-sm border border-gray-700">
+              <h4 className="text-sm text-gray-400 mb-2">About</h4>
+              <p className="text-sm text-gray-500">A compact developer-focused dApp template for experimenting with Algorand features.</p>
+            </div>
+          </aside>
+        </div>
       </main>
 
       <footer className="mt-12 py-8 text-center text-sm text-gray-500">
